@@ -83,7 +83,7 @@ class KitSerializer(serializers.ModelSerializer):
             "Variant"
         ]
             
-    
+ #rdvttbfvu   
 class OrderSerializer(serializers.ModelSerializer):
     id= serializers.IntegerField(required=False)
    
