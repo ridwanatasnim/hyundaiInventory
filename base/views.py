@@ -177,22 +177,36 @@ def kit_update(request,pk):
                 kit_instance.Variant=kit_Variant     
 
 
-
-            kit_Order = request.data.get('Order')
-            if kit_Order==None:
-                kit__Order=kit_instance.Order
-            else:
-                kit_instance.Order=kit_Order   
-
-
             mrr_date = request.data.get('mrr_date')
-            mrr_no = request.data.get('mrr_no')
-            
-    
-            order = Order.objects.get(mrr_no=mrr_no)
+            if mrr_date ==None:
+                mrr_date=kit_instance.Order.mrr_date
+                
 
-            if order==None: 
-                order=Order.objects.create(mrr_date=mrr_date, mrr_no=mrr_no)
+            kit_instance.Order.mrr_date=mrr_date
+            kit_instance.Order.save()
+            order=kit_instance.Order
+            
+            kit_instance.save()
+              
+            
+            mrr_no = request.data.get('mrr_no')
+            if mrr_no==None:
+                 mrr_no=kit_instance.Order.mrr_no
+
+
+
+            try:
+                order = Order.objects.get(mrr_no=mrr_no)
+
+            except Order.DoesNotExist:
+                order = None
+
+            if order==None:
+               kit_instance.Order.mrr_no=mrr_no
+               kit_instance.Order.save()
+               order=kit_instance.Order
+
+
 
             kit_instance.Order=order 
             order.save()
