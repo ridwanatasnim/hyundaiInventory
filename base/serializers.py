@@ -83,7 +83,11 @@ class KitSerializer(serializers.ModelSerializer):
             "Variant"
         ]
             
- #rdvttbfvu   
+ 
+
+
+
+  
 class OrderSerializer(serializers.ModelSerializer):
     id= serializers.IntegerField(required=False)
    
@@ -105,6 +109,10 @@ class OrderSerializer(serializers.ModelSerializer):
         for kit in Kits:
             Kit.objects.create(**kit,Order=order)
         return order
+
+
+
+  
 
 
 

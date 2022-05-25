@@ -14,6 +14,8 @@ from .filters import KitFilter
 
 from datetime import date
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 # Create your views here.
  
 @api_view(['GET'])
@@ -107,33 +109,6 @@ def kit_search(request):
    
     return Response(serializer.data)
 
- 
-
-# @api_view(['GET','PUT','DELETE'])
-# def kit_update_old(request,pk):
-#     kit_instance=Kit.objects.get(id=pk)
-  
-#     if request.method=='GET':
-        
-#         serializer=KitSerializerForUpdate(kit_instance, many=False)
-#         return Response(serializer.data)
-    
-#     if request.method=='PUT':
-            
-#             serializer=KitSerializerForUpdate(kit_instance, data=request.data)
-#             if serializer.is_valid():
-#                 serializer.save()
-#                 return Response(serializer.data)
-#             else:
-#                 return Response(serializer.errors)
-
-                    
-            
-#     if request.method=='DELETE':
-        
-#         kit_instance.delete()
-#         return Response('mmr_detail deleted')
-       
 
 
 @api_view(['GET','PUT','DELETE'])
@@ -180,7 +155,7 @@ def kit_update(request,pk):
             mrr_date = request.data.get('mrr_date')
             if mrr_date ==None:
                 mrr_date=kit_instance.Order.mrr_date
-                
+
 
             kit_instance.Order.mrr_date=mrr_date
             kit_instance.Order.save()
@@ -246,6 +221,53 @@ def order_update(request,pk):
         
         order_instance.delete()
         return redirect('/orders')
+
+
+
+@api_view(['GET','PUT'])
+def kit_update_by_order(request,pk):
+
+    order_instance=Order.objects.get(id=pk)
+    kit_list=Kit.objects.filter(Order=order_instance)
+    kits = request.data.get('kits')
+    mrr_no = request.data.get('mrr_no')
+    mrr_date = request.data.get('mrr_date')
+
+
+
+    if request.method=='GET':
+        serializer=OrderSerializer(order_instance, many=False)
+        return Response(serializer.data)
+    
+
+    if request.method=='PUT':
+        
+        if mrr_date ==None:
+            mrr_date=order_instance.mrr_date
+        order_instance.mrr_date=mrr_date
+            
+                
+            
+        if mrr_no==None:
+            mrr_no=order_instance.mrr_no
+        order_instance.mrr_no=mrr_no
+
+        order_instance.save()
+            
+        
+        for kit in kits:
+            kit_instance=Kit.objects.get(id=kit["id"])
+            serializer=KitSerializer(kit_instance, data=kit)
+            kit_instance.save()
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response ("invalid data format")    
+
+        serializer=OrderSerializer(order_instance, many=False)
+    return Response( serializer.data)
+   
+
 
 
 
