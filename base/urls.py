@@ -11,6 +11,6 @@ urlpatterns = [
     path('orders/', views.order_list, name='order_list'),
     path('order_update/<str:pk>', views.order_update, name='order_update'),
     path('order_add/', views.order_add, name='order_add'), 
-     path('kit_update_by_order/<str:pk>', views.kit_update_by_order, name='order_edit')
+    path('kit_update_by_order/<str:pk>', views.kit_update_by_order, name='order_edit')
     
 ]

@@ -21,23 +21,32 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 @api_view(['GET'])
 def kit_list(request):
     kits=Kit.objects.all()
+    p=Paginator(kits,5)
+    page_num=request.GET.get('page')
+    try:
+        page=p.page(page_num)
+    except EmptyPage:
+        page=p.page(1)
+
     if request.method=='GET':
         
-        serializer=KitSerializer(kits, many=True)
+        serializer=KitSerializer(page, many=True)
         return Response(serializer.data)
 
 @api_view(['GET'])
 def kit_list_for_table(request):
     kits = Kit.objects.all()
+    p=Paginator(kits,5)
+    page_num=request.GET.get('page')
+    try:
+        page=p.page(page_num)
+    except EmptyPage:
+        page=p.page(1)
    
     if request.method=='GET':
         
-        serializer=KitSerializerForTable(kits, many=True)
-        
-        #paginator = Paginator(data,5)
-        #page_number = request.GET.get('page')
-        #page_obj = paginator.get_page(page_number)
-
+        serializer=KitSerializerForTable(page, many=True)
+  
         return Response(serializer.data)
 
 
@@ -46,9 +55,15 @@ def kit_list_for_table(request):
 @api_view(['GET'])
 def order_list(request):
     orders=Order.objects.all()
+    p=Paginator(orders,5)
+    page_num=request.GET.get('page')
+    try:
+        page=p.page(page_num)
+    except EmptyPage:
+        page=p.page(1)
     if request.method=='GET':
         
-        serializer=OrderSerializer(orders, many=True)
+        serializer=OrderSerializer(page, many=True)
         return Response(serializer.data)
 
 
@@ -186,6 +201,8 @@ def kit_update(request,pk):
             kit_instance.Order=order 
             order.save()
             kit_instance.save()
+
+
             serializer=KitSerializerForUpdate(kit_instance, many=False)
             return Response(serializer.data)    
 
