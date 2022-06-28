@@ -13,30 +13,35 @@ from .serializers import *
 from .filters import KitFilter
 
 from datetime import date
+import math
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 # Create your views here.
  
 @api_view(['GET'])
 def kit_list(request):
     kits=Kit.objects.all()
-    p=Paginator(kits,5)
+   
+    
+    p=Paginator(kits,10)
     page_num=request.GET.get('page')
     try:
         page=p.page(page_num)
     except EmptyPage:
-        page=p.page(1)
+        page=p.page(math.ceil(p.count/10))
 
     if request.method=='GET':
         
+        page_count=math.ceil(p.count/10)  
         serializer=KitSerializer(page, many=True)
-        return Response(serializer.data)
+        return Response({"data": serializer.data, "count": page_count})
 
 @api_view(['GET'])
 def kit_list_for_table(request):
     kits = Kit.objects.all()
-    p=Paginator(kits,5)
+    p=Paginator(kits,10)
     page_num=request.GET.get('page')
     try:
         page=p.page(page_num)
@@ -44,10 +49,10 @@ def kit_list_for_table(request):
         page=p.page(1)
    
     if request.method=='GET':
-        
+        page_count=math.ceil(p.count/10)        
         serializer=KitSerializerForTable(page, many=True)
   
-        return Response(serializer.data)
+        return Response({"data": serializer.data,"count": page_count})
 
 
 
@@ -55,16 +60,16 @@ def kit_list_for_table(request):
 @api_view(['GET'])
 def order_list(request):
     orders=Order.objects.all()
-    p=Paginator(orders,5)
+    p=Paginator(orders,10)
     page_num=request.GET.get('page')
     try:
         page=p.page(page_num)
     except EmptyPage:
         page=p.page(1)
     if request.method=='GET':
-        
+        page_count=math.ceil(p.count/10)
         serializer=OrderSerializer(page, many=True)
-        return Response(serializer.data)
+        return Response({"data": serializer.data,"count":page_count})
 
 
 
@@ -96,13 +101,11 @@ def kit_create(request):
 
 
 
-@api_view(['POST'])
+@api_view(['POST','GET'])
 def kit_search(request):   
 
     orders=Order.objects.all()
     kits=Kit.objects.all()
-    
-    
     fromDate = request.data.get('fromDate')
     if fromDate==None:
         fromDate="0001-01-01"
@@ -110,19 +113,41 @@ def kit_search(request):
     toDate = request.data.get('toDate')
     if toDate==None:
         toDate="9999-01-01"
-
-    model_input = request.data.get('Model')
-    if model_input==None:
-        kits = Kit.objects.distinct().filter(Order__mrr_date__gte=fromDate,Order__mrr_date__lte=toDate,)
-      
-    else:
-        kits = Kit.objects.distinct().filter(Order__mrr_date__gte=fromDate,Order__mrr_date__lte=toDate,)\
-        .filter(Model=model_input)
-
     
-    serializer=KitSerializerForTable(kits, many=True) 
-   
-    return Response(serializer.data)
+    return Response({'fromDate':fromDate,'toDate':toDate})
+    
+
+@api_view(['GET'])
+def kit_search_details(request,fromyear,frommonth,fromday,toyear,tomonth,today):
+    fromDate=fromyear+"-"+frommonth+"-"+fromday
+    toDate=toyear+"-"+tomonth+"-"+today
+    orders = Order.objects.distinct().filter(mrr_date__gte=fromDate,mrr_date__lte=toDate)
+
+  
+        #kits = Kit.objects.distinct().filter(Order__mrr_date__gte=fromDate,Order__mrr_date__lte=toDate,)
+
+        #if model input is also required->
+        #model_input = request.data.get('Model')
+        #if model_input==None:
+        #    kits = Kit.objects.distinct().filter(Order__mrr_date__gte=fromDate,Order__mrr_date__lte=toDate,)
+        #else:
+        #    kits = Kit.objects.distinct().filter(Order__mrr_date__gte=fromDate,Order__mrr_date__lte=toDate,)\
+        #    .filter(Model=model_input)
+    p=Paginator(orders,10)
+        #orders_length=len(orders)
+        #page_num=math.ceil(orders_length/10)
+
+    page_num=request.GET.get('page')
+    try:
+        page=p.page(page_num)
+    except EmptyPage:
+        page=p.page(1)
+    serializer=OrderSerializer(page, many=True) 
+    return Response({'data':serializer.data, 'count':p.count})
+
+
+      
+
 
 
 

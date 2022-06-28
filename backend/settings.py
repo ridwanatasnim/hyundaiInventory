@@ -15,8 +15,8 @@ SECRET_KEY = 'django-insecure-k72#dn2rmcf_i88b8571ywe76_+r%f%o0#qqajm+n5#*(^%r09
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','10.100.19.26','10.100.80.141','10.100.20.127','10.100.18.86','10.100.19.26']
-#'10.100.80.141'
+ALLOWED_HOSTS = ['127.0.0.1','10.100.18.86']
+
 
 # Application definition
 
@@ -40,12 +40,8 @@ REST_FRAMEWORK = {
     ),
     
     'DEFAULT_PAGINATION_CLASS': "rest_framework.pagination.PageNumberPagination",
-    'PAGE_SIZE': 5
+    'PAGE_SIZE': 10
 }
-
-
-
-
 
 
 SIMPLE_JWT = {
